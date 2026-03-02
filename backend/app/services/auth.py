@@ -2,7 +2,7 @@ import random
 import string
 from datetime import datetime, timedelta, timezone
 from typing import Optional
-from passlib.context import CryptContext
+import bcrypt
 from jose import jwt, JWTError
 
 from sqlalchemy.orm import Session
@@ -15,22 +15,28 @@ from app.schemas.user import UserCreate
 from app.services.email import send_otp_email
 
 # Password Hashing
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
-def verify_password(plain_password, hashed_password):
-    # Bcrypt 4.0+ strict length cutoff fix (passwords > 72 bytes crash bcrypt)
-    if len(plain_password.encode('utf-8')) > 72:
-        plain_password = plain_password.encode('utf-8')[:72].decode('utf-8', 'ignore')
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    # Bcrypt strictly requires bytes.
+    # We truncate the password to 72 bytes because bcrypt refuses longer passwords.
+    password_bytes = plain_password.encode('utf-8')
+    if len(password_bytes) > 72:
+        password_bytes = password_bytes[:72]
         
+    hashed_password_bytes = hashed_password.encode('utf-8')
+    
     try:
-        return pwd_context.verify(plain_password, hashed_password)
-    except ValueError:
+        return bcrypt.checkpw(password_bytes, hashed_password_bytes)
+    except Exception:
         return False
 
-def get_password_hash(password):
-    if len(password.encode('utf-8')) > 72:
-        password = password.encode('utf-8')[:72].decode('utf-8', 'ignore')
-    return pwd_context.hash(password)
+def get_password_hash(password: str) -> str:
+    password_bytes = password.encode('utf-8')
+    if len(password_bytes) > 72:
+        password_bytes = password_bytes[:72]
+        
+    salt = bcrypt.gensalt()
+    hashed_password_bytes = bcrypt.hashpw(password_bytes, salt)
+    return hashed_password_bytes.decode('utf-8')
 
 # JWT Token
 def create_access_token(data: dict, expires_delta: Optional[timedelta] = None):
