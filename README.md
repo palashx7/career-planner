@@ -4,7 +4,7 @@ Career Planner AI is a modern, full-stack, AI-powered platform designed to act a
 
 ## 🌟 Live Demo
 - **Frontend (Vercel):** [https://career-planner-alpha.vercel.app/](https://career-planner-alpha.vercel.app/)
-- **Backend (Render):** [https://career-planner-api-xxxx.onrender.com](https://career-planner-api-xxxx.onrender.com) *(API Root)*
+- **Backend (Render):** [https://career-planner-2.onrender.com](https://career-planner-2.onrender.com) *(API Root)*
 
 ## 🛠️ Technology Stack
 ### Frontend
